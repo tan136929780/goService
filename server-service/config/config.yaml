@@ -1,0 +1,25 @@
+common:
+dev:
+  client:
+    name: go.micro.client
+    host: 127.0.0.1
+    port: 8201
+  server:
+    name: go.micro.service
+    host: 127.0.0.1
+    port: 8200
+  db:
+    dgraph:
+      host: 127.0.0.1:8090
+    mysql:
+      host: root:123456@tcp(127.0.0.1:3306)/test?charset=utf8&parseTime=True&loc=Local
+      maxIdleConns: 10
+      maxOpenConns: 100
+      connMaxLifetime: 60000000000 # 纳秒
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      poolSize: 10
+  nacos:
+    host: 127.0.0.1:8848
+    nameSpace: 1d3f032a-d399-4eee-9c55-c56cb500019b

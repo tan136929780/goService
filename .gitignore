@@ -13,3 +13,7 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+/server-service/vendor/
+/client-service/vendor/
+/client-service/go.mod
+/server-service/go.mod

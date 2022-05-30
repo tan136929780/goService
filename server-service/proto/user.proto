@@ -1,0 +1,22 @@
+syntax = "proto3";
+package proto;
+option go_package = "./proto";
+
+service UserService{
+  rpc CreateUser(UserRequest) returns(ResponseResult){}
+  rpc UpdateUser(UserRequest) returns(ResponseResult){}
+  rpc SelectUser(UserRequest) returns(ResponseResult){}
+  rpc DeleteUser(UserRequest) returns(ResponseResult){}
+}
+
+message UserRequest{
+  string id = 1;
+  string name = 2;
+  string age = 3;
+}
+
+message ResponseResult{
+  int32 code = 1;
+  string message = 2;
+  map<string, string> data = 3;
+}
