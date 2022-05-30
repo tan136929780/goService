@@ -34,7 +34,7 @@ func (c *Config) initConfig() error {
 	} else {
 		// 如果没有指定配置文件，则解析默认的配置文件
 		path, _ := os.Getwd()
-		viper.AddConfigPath(path + "/src/microService/client-service/config/")
+		viper.AddConfigPath(path + "/src/goMicroService/client-service/config/")
 		viper.SetConfigName("config")
 	}
 	// 设置配置文件格式为YAML
