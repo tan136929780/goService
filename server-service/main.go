@@ -46,7 +46,6 @@ func main() {
 	microService := micro.NewService(
 		micro.Name(config.GetString("server.name")),
 		micro.Registry(reg),
-		micro.Registry(reg),
 		micro.Address(config.GetString("server.host")+":"+config.GetString("server.port")),
 	)
 	microService.Init()
