@@ -2,7 +2,7 @@ package redis
 
 import (
 	"github.com/go-redis/redis"
-	"goMicroService/client-service/utils/config"
+	"goService/client-service/utils/config"
 	"runtime"
 	"time"
 )

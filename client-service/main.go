@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"goMicroService/client-service/router"
-	"goMicroService/client-service/utils/config"
-	"goMicroService/client-service/utils/db"
-	"goMicroService/client-service/utils/logging"
-	"goMicroService/client-service/utils/redis"
+	"goService/client-service/router"
+	"goService/client-service/utils/config"
+	"goService/client-service/utils/db"
+	"goService/client-service/utils/logging"
+	"goService/client-service/utils/redis"
 )
 
 func init() {

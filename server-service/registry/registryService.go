@@ -9,8 +9,8 @@ package registry
 import (
 	"fmt"
 	"github.com/asim/go-micro/v3/server"
-	"goMicroService/server-service/grpc/user"
-	"goMicroService/server-service/proto/proto"
+	"goService/server-service/grpc/user"
+	"goService/server-service/proto/proto"
 )
 
 func RegistryService(server server.Server) {

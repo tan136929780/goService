@@ -12,8 +12,8 @@ import (
 	"github.com/asim/go-micro/v3/plugins/registry/nacos"
 	"github.com/asim/go-micro/v3/registry"
 	"github.com/gin-gonic/gin"
-	"goMicroService/client-service/proto/proto"
-	"goMicroService/client-service/utils/config"
+	"goService/client-service/proto/proto"
+	"goService/client-service/utils/config"
 	"net/http"
 )
 

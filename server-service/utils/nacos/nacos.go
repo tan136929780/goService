@@ -14,7 +14,7 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/model"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-	"goMicroService/server-service/utils/config"
+	"goService/server-service/utils/config"
 )
 
 func NamingClient() naming_client.INamingClient {

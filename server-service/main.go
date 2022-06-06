@@ -6,13 +6,13 @@ import (
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/plugins/registry/nacos"
 	"github.com/asim/go-micro/v3/registry"
-	nacos2 "goMicroService/server-service/utils/nacos"
+	nacos2 "goService/server-service/utils/nacos"
 	//"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
-	registry2 "goMicroService/server-service/registry"
-	"goMicroService/server-service/utils/config"
-	"goMicroService/server-service/utils/db"
-	"goMicroService/server-service/utils/logging"
-	"goMicroService/server-service/utils/redis"
+	registry2 "goService/server-service/registry"
+	"goService/server-service/utils/config"
+	"goService/server-service/utils/db"
+	"goService/server-service/utils/logging"
+	"goService/server-service/utils/redis"
 )
 
 func init() {

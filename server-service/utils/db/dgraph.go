@@ -9,7 +9,7 @@ package db
 import (
 	"github.com/dgraph-io/dgo/v200"
 	"github.com/dgraph-io/dgo/v200/protos/api"
-	"goMicroService/server-service/utils/config"
+	"goService/server-service/utils/config"
 	"google.golang.org/grpc"
 )
 

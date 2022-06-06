@@ -8,7 +8,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"goMicroService/client-service/controller"
+	"goService/client-service/controller"
 )
 
 func UserRouter(r *gin.Engine) {

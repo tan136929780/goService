@@ -8,7 +8,7 @@ package user
 
 import (
 	"context"
-	"goMicroService/server-service/proto/proto"
+	"goService/server-service/proto/proto"
 )
 
 type User struct{}

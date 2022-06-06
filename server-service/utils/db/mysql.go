@@ -7,7 +7,7 @@
 package db
 
 import (
-	"goMicroService/server-service/utils/config"
+	"goService/server-service/utils/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"time"
