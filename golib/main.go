@@ -7,7 +7,7 @@
 package main
 
 import "C"
-import "lib/hello"
+import "goService/golib/hello"
 
 func main() {
 }
