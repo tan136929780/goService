@@ -8,12 +8,22 @@ package hello
 
 import "fmt"
 
-type test struct {
+type testString struct {
 	name string
 }
 
+type testBytes struct {
+	data []byte
+}
+
 func GetString(call string) string {
-	a := test{name: call}
+	a := testString{name: call}
 	fmt.Println(a.name)
 	return "Hello " + call
+}
+
+func GetBytes(call []byte) []byte {
+	a := testBytes{data: call}
+	fmt.Println(a.data)
+	return call
 }
