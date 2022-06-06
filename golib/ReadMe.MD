@@ -1,4 +1,4 @@
-go build -buildmode=c-shared -o hello.so
+go build -buildmode=c-shared -o libhello.so
 
 ```text
 golang 生成动态库注意事项:
