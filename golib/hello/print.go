@@ -17,8 +17,6 @@ type testBytes struct {
 }
 
 func GetString(call string) string {
-	a := testString{name: call}
-	fmt.Println(a.name)
 	return "Hello " + call
 }
 

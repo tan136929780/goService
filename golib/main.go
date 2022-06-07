@@ -8,6 +8,7 @@ package main
 
 import "C"
 import (
+	"bytes"
 	"goService/golib/hello"
 	"unsafe"
 )
@@ -15,13 +16,18 @@ import (
 func main() {
 }
 
-//export Hello
-func Hello(call string) *C.char {
+//export Hello1
+func Hello1(call string) *C.char {
 	return C.CString(hello.GetString(call))
 }
 
-//export Download
-func Download(raw *C.char, size C.int) *C.char {
-	data := C.GoBytes(unsafe.Pointer(raw), size)
-	return C.CString(hello.GetBytes(data))
+//export Hello2
+func Hello2(call string) (*C.char, *C.char) {
+	return C.CString(hello.GetString(call)), C.CString(hello.GetString(call))
+}
+
+//export Hello3
+func Hello3(call *C.char, size C.int) (unsafe.Pointer, int) {
+	data := C.GoBytes(unsafe.Pointer(call), size)
+	return C.CBytes(bytes.Title(data)), len(data)
 }
