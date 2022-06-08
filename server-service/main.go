@@ -6,12 +6,11 @@ import (
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/plugins/registry/nacos"
 	"github.com/asim/go-micro/v3/registry"
-	nacos2 "goService/server-service/utils/nacos"
-	//"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	registry2 "goService/server-service/registry"
 	"goService/server-service/utils/config"
 	"goService/server-service/utils/db"
 	"goService/server-service/utils/logging"
+	nacos2 "goService/server-service/utils/nacos"
 	"goService/server-service/utils/redis"
 )
 
