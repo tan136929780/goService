@@ -17,5 +17,7 @@
 /server-service/vendor/
 /client-service/vendor/
 /client-service/go.mod
+/client-service/go.sum
 /server-service/go.mod
+/server-service/go.sum
 .idea/
