@@ -1,0 +1,20 @@
+common:
+dev:
+  client:
+    name: go.micro.client
+    host: 127.0.0.1
+    port: 8201
+  server:
+    name: visionvera.vfile
+    host: 127.0.0.1
+    port: 8200
+  db:
+    dgraph:
+      host: 127.0.0.1:8090
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      poolSize: 10
+  log:
+    logPath: /home/tan/www/go/src/visionvera/log/
+    grayLogPath: /home/tan/www/go/src/visionvera/log/
