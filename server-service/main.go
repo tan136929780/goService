@@ -1,16 +1,14 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/plugins/registry/nacos"
-	"github.com/asim/go-micro/v3/registry"
 	registry2 "goService/server-service/registry"
 	"goService/server-service/utils/config"
 	"goService/server-service/utils/db"
 	"goService/server-service/utils/logging"
-	nacos2 "goService/server-service/utils/nacos"
+	"goService/server-service/utils/nacosutil"
 	"goService/server-service/utils/redis"
 )
 
@@ -32,15 +30,8 @@ func init() {
 
 func main() {
 	//nacos作为服务注册中心
-	reg := nacos.NewRegistry(func(opts *registry.Options) {
-		opts.Context = context.WithValue(context.Background(), "naming_client", nacos2.NamingClient())
-	})
-	//reg := nacos.NewRegistry(func(opts *registry.Options) {
-	//	opts.Addrs = []string{config.GetString("nacos.host")}
-	//	opts.Context = context.WithValue(opts.Context, "clientConfig", constant.ClientConfig{
-	//		NamespaceId: config.GetString("nacos.nameSpace"),
-	//	})
-	//})
+	reg := nacos.NewRegistry(nacos.WithAddress([]string{config.GetString("nacos.host") + ":" + config.GetString("nacos.port")}), nacos.WithClientConfig(nacosutil.ClientConfig()))
+
 	// 生成服务
 	microService := micro.NewService(
 		micro.Name(config.GetString("server.name")),

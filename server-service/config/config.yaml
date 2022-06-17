@@ -21,5 +21,7 @@ dev:
       port: 6379
       poolSize: 10
   nacos:
-    host: 127.0.0.1:8848
-    nameSpace: 1d3f032a-d399-4eee-9c55-c56cb500019b
+    host: 127.0.0.1
+    port: 8848
+    registry:
+      nameSpace: 1d3f032a-d399-4eee-9c55-c56cb500019b

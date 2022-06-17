@@ -25,7 +25,7 @@ func CreateUser(c *gin.Context) {
 	}
 	//instance := nacosCnf.GetInstence("go.micro.service")
 	reg := nacos.NewRegistry(func(opts *registry.Options) {
-		opts.Addrs = []string{config.GetString("nacos.host")}
+		opts.Addrs = []string{config.GetString("nacos.host") + ":" + config.GetString("nacos.port")}
 	})
 	microService := micro.NewService(
 		micro.Name(config.GetString("client.name")),
