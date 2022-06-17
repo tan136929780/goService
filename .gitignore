@@ -14,11 +14,8 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
-/server-service/vendor/
-/client-service/vendor/
-/file-client/vendor/
-/file-service/vendor/
-/file-service/log/
+/*/vendor/
+/*/log/
 /log/
 .idea/
 .DS_Store/
