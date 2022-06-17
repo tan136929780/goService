@@ -5,11 +5,10 @@ import (
 )
 
 var (
-	GraylogSavePath   = "/applogs/"
-	LogSavePath       = "/app/logs/"
-	LogSaveName       = "go-detail.app"
-	AccessLogSaveName = "go-detail.app.access"
-	SlowLogSaveName   = "go-detail.app.slow"
+	LogSavePath       = "./log/"
+	LogSaveName       = "common.log"
+	AccessLogSaveName = "access.log"
+	SlowLogSaveName   = "slow.log"
 )
 
 func getLogFilePath() string {
@@ -17,7 +16,7 @@ func getLogFilePath() string {
 }
 
 func getLogFileFullPath() string {
-	return GraylogSavePath + LogSaveName
+	return LogSavePath + LogSaveName
 }
 
 func getAccessLogFileFullPath() string {
