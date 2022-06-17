@@ -8,7 +8,7 @@ import (
 	"goService/server-service/utils/config"
 	"goService/server-service/utils/db"
 	"goService/server-service/utils/logging"
-	"goService/server-service/utils/nacosutil"
+	"goService/server-service/utils/nacosUtil"
 	"goService/server-service/utils/redis"
 )
 
@@ -30,7 +30,7 @@ func init() {
 
 func main() {
 	//nacos作为服务注册中心
-	reg := nacos.NewRegistry(nacos.WithAddress([]string{config.GetString("nacos.host") + ":" + config.GetString("nacos.port")}), nacos.WithClientConfig(nacosutil.ClientConfig()))
+	reg := nacos.NewRegistry(nacos.WithAddress([]string{config.GetString("nacos.host") + ":" + config.GetString("nacos.port")}), nacos.WithClientConfig(nacosUtil.ClientConfig()))
 
 	// 生成服务
 	microService := micro.NewService(

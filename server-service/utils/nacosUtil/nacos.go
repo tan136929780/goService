@@ -5,7 +5,7 @@
 @Software: GoLand
 */
 
-package nacosutil
+package nacosUtil
 
 import (
 	"fmt"
