@@ -16,8 +16,9 @@
 # vendor/
 /server-service/vendor/
 /client-service/vendor/
-/client-service/go.mod
-/client-service/go.sum
-/server-service/go.mod
-/server-service/go.sum
+/file-client/vendor/
+/file-service/vendor/
+/file-service/log/
+/log/
 .idea/
+.DS_Store/
