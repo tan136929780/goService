@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/plugins/registry/nacos"
-	"github.com/asim/go-micro/v3/registry"
 	"github.com/gin-gonic/gin"
 	"goService/client-service/proto/proto"
 	"goService/client-service/utils/config"
@@ -23,10 +22,7 @@ func CreateUser(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	//instance := nacosCnf.GetInstence("go.micro.service")
-	reg := nacos.NewRegistry(func(opts *registry.Options) {
-		opts.Addrs = []string{config.GetString("nacos.host") + ":" + config.GetString("nacos.port")}
-	})
+	reg := nacos.NewRegistry(nacos.WithAddress([]string{config.GetString("nacos.host") + ":" + config.GetString("nacos.port")}))
 	microService := micro.NewService(
 		micro.Name(config.GetString("client.name")),
 		micro.Registry(reg),
