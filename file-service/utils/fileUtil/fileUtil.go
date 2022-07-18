@@ -179,17 +179,20 @@ func CreateFileInstance() (*newvcms.CreateResult, error) {
 		},
 	})
 	isa, _ := json.Marshal([]string{"type"})
-	FileMetaData := map[string]string{
-		"instance.identifier": "文件上传模型",
-		"instance.isa":        string(isa),
-		"type.identifier":     "FileMetaData",
-		"type.property":       string(propreties),
-		"type.status":         "1",
-	}
-	request := &newvcms.InstanceCreateRequest{
-		Identifier: "type",
-		Data:       FileMetaData,
-	}
+	createInstanceList := make([]*newvcms.InstanceInfo, 0)
+	createInstanceList = append(createInstanceList, &newvcms.InstanceInfo{
+		TypeIdentifier: "type",
+		Values: map[string]string{
+			"instance.identifier": "文件上传模型",
+			"instance.isa":        string(isa),
+			"type.identifier":     "FileMetaData",
+			"type.property":       string(propreties),
+			"type.status":         "1",
+		},
+		Uid:          "",
+		RelationInfo: nil,
+	})
+	request := &newvcms.InstanceCreateRequest{Instances: createInstanceList}
 	response, err := grpcClient.AddFileInstence(config.GetString("grpc.instanceService.host"), config.GetInt("grpc.instanceService.port"), request)
 	if err != nil {
 		logging.MetaDataLogger.Error(err)
@@ -205,7 +208,7 @@ func CreateFileMetaData(metaData *vfile.MetaData) (*newvcms.CreateResult, error)
 		return &newvcms.CreateResult{
 			Code:    constant.SUCCESS,
 			Message: "文件模型已存在",
-			Uid:     fileInstance.Uid,
+			Uid:     []string{fileInstance.Uid},
 		}, nil
 	}
 	if err != nil {
@@ -213,9 +216,10 @@ func CreateFileMetaData(metaData *vfile.MetaData) (*newvcms.CreateResult, error)
 		return nil, err
 	}
 	isa, _ := json.Marshal([]string{"FileMetaData"})
-	request := &newvcms.InstanceCreateRequest{
-		Identifier: "FileMetaData",
-		Data: map[string]string{
+	createInstanceList := make([]*newvcms.InstanceInfo, 0)
+	createInstanceList = append(createInstanceList, &newvcms.InstanceInfo{
+		TypeIdentifier: "FileMetaData",
+		Values: map[string]string{
 			"instance.identifier":   metaData.Uri,
 			"instance.isa":          string(isa),
 			"FileMetaData.fileName": metaData.FileName,
@@ -224,7 +228,10 @@ func CreateFileMetaData(metaData *vfile.MetaData) (*newvcms.CreateResult, error)
 			"FileMetaData.hash":     metaData.Hash,
 			"FileMetaData.fileSize": strconv.FormatInt(metaData.FileSize, 10),
 		},
-	}
+		Uid:          "",
+		RelationInfo: nil,
+	})
+	request := &newvcms.InstanceCreateRequest{Instances: createInstanceList}
 	response, err := grpcClient.AddFileInstence(config.GetString("grpc.instanceService.host"), config.GetInt("grpc.instanceService.port"), request)
 	if err != nil {
 		logging.MetaDataLogger.Error(fmt.Sprintf("CreateFileMetaDat: %s， uri: %s", err.Error(), metaData.Uri))
@@ -234,15 +241,31 @@ func CreateFileMetaData(metaData *vfile.MetaData) (*newvcms.CreateResult, error)
 }
 
 func FindFileMetaData(uri string) (*FileInstance, error) {
+	propertyExpressionList := make([]*newvcms.PropertyExpression, 0)
+	propertyExpressionList = append(propertyExpressionList, &newvcms.PropertyExpression{
+		Property: "instance.identifier",
+		Operator: "eq",
+		Value:    uri,
+	}, &newvcms.PropertyExpression{
+		Property: "FileMetaData.status",
+		Operator: "eq",
+		Value:    "1",
+	})
+	conditionArray := make([]*newvcms.SearchCondition, 0)
+	conditionArray = append(conditionArray, &newvcms.SearchCondition{
+		TypeIdentifier:     "FileMetaData",
+		Properties:         nil,
+		Page:               0,
+		PageSize:           10,
+		Sorters:            nil,
+		Expression:         "",
+		PropertyExpression: propertyExpressionList,
+		IsGroupby:          false,
+		GroupbyProperty:    "",
+		RelationFilters:    nil,
+	})
 	request := &newvcms.InstanceFindRequest{
-		Identifier: "FileMetaData",
-		Sorters:    nil,
-		Page:       1,
-		PageSize:   10,
-		Condition: map[string]string{
-			"instance.identifier": uri,
-			"FileMetaData.status": "1",
-		},
+		Condition: conditionArray,
 	}
 	response, err := grpcClient.FindInstance(config.GetString("grpc.instanceService.host"), config.GetInt("grpc.instanceService.port"), request)
 	if err != nil {
@@ -250,14 +273,16 @@ func FindFileMetaData(uri string) (*FileInstance, error) {
 		return nil, err
 	}
 	data := &FileInstanceList{}
-	err = json.Unmarshal([]byte(response.Data), data)
-	if err != nil {
-		logging.MetaDataLogger.Error(fmt.Sprintf("FindFileMetaData: %s， uri: %s", err.Error(), uri))
-		return nil, err
-	}
-	if len(data.Instances) > 0 {
-		logging.MetaDataLogger.Error(fmt.Sprintf("FindFileMetaData: 文件模型已存在，返回历史录入信息， uri: %s", uri))
-		return &data.Instances[0], nil
+	if len(response.Result) > 0 {
+		err = json.Unmarshal([]byte(response.Result[0].Data), data)
+		if err != nil {
+			logging.MetaDataLogger.Error(fmt.Sprintf("FindFileMetaData: %s， uri: %s", err.Error(), uri))
+			return nil, err
+		}
+		if len(data.Instances) > 0 {
+			logging.MetaDataLogger.Error(fmt.Sprintf("FindFileMetaData: 文件模型已存在，返回历史录入信息， uri: %s", uri))
+			return &data.Instances[0], nil
+		}
 	}
 	return nil, nil
 }

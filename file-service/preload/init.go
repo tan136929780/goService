@@ -56,17 +56,20 @@ func instanceCreate() {
 		},
 	})
 	isa, _ := json.Marshal([]string{"type"})
-	FileMetaData := map[string]string{
-		"instance.identifier": "文件上传模型",
-		"instance.isa":        string(isa),
-		"type.identifier":     "FileMetaData",
-		"type.property":       string(propreties),
-		"type.status":         "1",
-	}
-	request := &newvcms.InstanceCreateRequest{
-		Identifier: "type",
-		Data:       FileMetaData,
-	}
+	createInstanceList := make([]*newvcms.InstanceInfo, 0)
+	createInstanceList = append(createInstanceList, &newvcms.InstanceInfo{
+		TypeIdentifier: "type",
+		Values: map[string]string{
+			"instance.identifier": "文件上传模型",
+			"instance.isa":        string(isa),
+			"type.identifier":     "FileMetaData",
+			"type.property":       string(propreties),
+			"type.status":         "1",
+		},
+		Uid:          "",
+		RelationInfo: nil,
+	})
+	request := &newvcms.InstanceCreateRequest{Instances: createInstanceList}
 	response, err := grpcClient.AddFileInstence(config.GetString("grpc.instanceService.host"), config.GetInt("grpc.instanceService.host"), request)
 	if err != nil {
 		fmt.Printf("Printf err Content: %v\n", err.Error())
