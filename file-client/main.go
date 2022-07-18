@@ -175,35 +175,53 @@ func main() {
 }
 
 func FindInstance() {
-	//0x78ec
-	//identifier := "bf91a92aa29f34911540557b41ce79ac.png"
+	propertyExpressionList := make([]*newvcms.PropertyExpression, 0)
+	propertyExpressionList = append(propertyExpressionList, &newvcms.PropertyExpression{
+		Property: "instance.identifier",
+		Operator: "eq",
+		Value:    "bf91a92aa29f34911540557b41ce79ac.png",
+	}, &newvcms.PropertyExpression{
+		Property: "FileMetaData.status",
+		Operator: "eq",
+		Value:    "1",
+	})
+	conditionArray := make([]*newvcms.SearchCondition, 0)
+	conditionArray = append(conditionArray, &newvcms.SearchCondition{
+		TypeIdentifier:     "FileMetaData",
+		Properties:         nil,
+		Page:               0,
+		PageSize:           10,
+		Sorters:            nil,
+		Expression:         "",
+		PropertyExpression: propertyExpressionList,
+		IsGroupby:          false,
+		GroupbyProperty:    "",
+		RelationFilters:    nil,
+	})
 	request := &newvcms.InstanceFindRequest{
-		Identifier: "FileMetaData",
-		Sorters:    nil,
-		Page:       1,
-		PageSize:   10,
-		Condition: map[string]string{
-			"instance.identifier": "bf91a92aa29f34911540557b41ce79ac.png",
-			"FileMetaData.status": "1",
-		},
+		Condition: conditionArray,
 	}
-	response, err := grpcClient.FindInstance("10.1.68.60", 9090, request)
+	response, err := grpcClient.FindInstance(config.GetString("instance.host"), config.GetInt("instance.port"), request)
 	if err != nil {
 		fmt.Printf("Printf err Content: %#v\n", err.Error())
 	}
 	data := &fileUtil.FileInstanceList{}
-	err = json.Unmarshal([]byte(response.Data), data)
-	if err != nil {
-		return
+	if len(response.Result) > 0 {
+		err = json.Unmarshal([]byte(response.Result[0].Data), data)
+		if err != nil {
+			return
+		}
+		fmt.Printf("Printf s Content: %v\n", data.Instances[0].FileMetaDataUri)
 	}
-	fmt.Printf("Printf s Content: %v\n", data.Instances[0].FileMetaDataUri)
+	fmt.Println("Printf s Content: 没有数据")
 }
 
 func createFileMetaData() {
 	isa, _ := json.Marshal([]string{"FileMetaData"})
-	request := &newvcms.InstanceCreateRequest{
-		Identifier: "FileMetaData",
-		Data: map[string]string{
+	createInstanceList := make([]*newvcms.InstanceInfo, 0)
+	createInstanceList = append(createInstanceList, &newvcms.InstanceInfo{
+		TypeIdentifier: "FileMetaData",
+		Values: map[string]string{
 			"instance.identifier":   "bf91a92aa29f34911540557b41ce79ac.png",
 			"instance.isa":          string(isa),
 			"FileMetaData.fileName": "test.png",
@@ -212,8 +230,11 @@ func createFileMetaData() {
 			"FileMetaData.hash":     "bf91a92aa29f34911540557b41ce79ac",
 			"FileMetaData.fileSize": "78899",
 		},
-	}
-	response, err := grpcClient.AddFileInstence("10.1.68.60", 9090, request)
+		Uid:          "",
+		RelationInfo: nil,
+	})
+	request := &newvcms.InstanceCreateRequest{Instances: createInstanceList}
+	response, err := grpcClient.AddFileInstence(config.GetString("instance.host"), config.GetInt("instance.port"), request)
 	if err != nil {
 		fmt.Printf("Printf err Content: %#v\n", err.Error())
 	}
@@ -260,18 +281,21 @@ func instanceCreate() {
 		},
 	})
 	isa, _ := json.Marshal([]string{"type"})
-	FileMetaData := map[string]string{
-		"instance.identifier": "文件上传模型",
-		"instance.isa":        string(isa),
-		"type.identifier":     "FileMetaData",
-		"type.property":       string(propreties),
-		"type.status":         "1",
-	}
-	request := &newvcms.InstanceCreateRequest{
-		Identifier: "type",
-		Data:       FileMetaData,
-	}
-	response, err := grpcClient.AddFileInstence("10.1.68.60", 9090, request)
+	createInstanceList := make([]*newvcms.InstanceInfo, 0)
+	createInstanceList = append(createInstanceList, &newvcms.InstanceInfo{
+		TypeIdentifier: "type",
+		Values: map[string]string{
+			"instance.identifier": "文件上传模型",
+			"instance.isa":        string(isa),
+			"type.identifier":     "FileMetaData",
+			"type.property":       string(propreties),
+			"type.status":         "1",
+		},
+		Uid:          "",
+		RelationInfo: nil,
+	})
+	request := &newvcms.InstanceCreateRequest{Instances: createInstanceList}
+	response, err := grpcClient.AddFileInstence(config.GetString("instance.host"), config.GetInt("instance.port"), request)
 	if err != nil {
 		fmt.Printf("Printf err Content: %#v\n", err.Error())
 	}
@@ -280,12 +304,18 @@ func instanceCreate() {
 
 func deleteInstance() {
 	//uids := []string{"0x78c9", "0x78ce", "0x78cd", "0x78cc", "0x78cb", "0x78ca"}
-	uids := []string{"0x78d1", "0x78d2", "0x78d3", "0x78d4", "0x78d5", "0x78d6"}
+	uid := "0x9cf4"
+	deleteInstanceList := make([]*newvcms.DeleteInfo, 0)
+	deleteInstanceList = append(deleteInstanceList, &newvcms.DeleteInfo{
+		Identifier:         "FileMetaData",
+		Uid:                uid,
+		RelationDeleteInfo: nil,
+	})
 	request := &newvcms.InstanceDeleteRequest{
-		Identifier: "type",
-		Ids:        uids,
+		Operation:  newvcms.OperationEnum_NORMAL,
+		DeleteInfo: deleteInstanceList,
 	}
-	response, err := grpcClient.DelFileInstence("10.1.68.60", 9090, request)
+	response, err := grpcClient.DelFileInstence(config.GetString("instance.host"), config.GetInt("instance.port"), request)
 	if err != nil {
 		fmt.Printf("Printf err Content: %#v\n", err.Error())
 	}
@@ -296,7 +326,7 @@ func upload() {
 	if err := config.Init(""); err != nil {
 		panic(err)
 	}
-	conn := grpcClient.GetGrpcClient("127.0.0.1", 8200)
+	conn := grpcClient.GetGrpcClient(config.GetString("server.host"), config.GetInt("server.port"))
 	if conn == nil {
 		fmt.Println("client error")
 	}
@@ -326,7 +356,7 @@ func download() {
 	if err := config.Init(""); err != nil {
 		panic(err)
 	}
-	conn := grpcClient.GetGrpcClient("127.0.0.1", 8200)
+	conn := grpcClient.GetGrpcClient(config.GetString("server.host"), config.GetInt("server.port"))
 	if conn == nil {
 		fmt.Println("client error")
 	}
