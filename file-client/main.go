@@ -166,6 +166,11 @@ func Download(in C.struct_DownloadInfoRequest) C.struct_DownloadResponse {
 }
 
 func main() {
+	//初始化配置文件
+	if err := config.Init(""); err != nil {
+		panic(err)
+	}
+
 	//upload()
 	download()
 	//instanceCreate()
