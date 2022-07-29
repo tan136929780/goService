@@ -11,6 +11,7 @@ service InstanceService {
   rpc FindInstance(InstanceFindRequest) returns (InstanceFindResponse){};
   rpc FindInstanceById(InstanceFindByIdRequest) returns (InstanceFindByIdResponse){};
   rpc FindMetaDataByIdentifier(MetaDataFindRequest) returns (MetaDataFindResponse){};
+  rpc BatchImportInstanceStream(BatchImportRequest) returns (stream BatchImportResponse){};
 }
 
 
@@ -150,6 +151,7 @@ message DeleteResult {
   string message = 2;
   // 删除成功的个数
   int32 num = 3;
+  string data = 4;
 }
 
 message CreateResult {
@@ -197,4 +199,19 @@ message InstanceFindByIdResponse {
   string message = 2;
   // 数据
   string data = 6;
+}
+
+message BatchImportRequest {
+  string file_uri = 1;
+}
+
+message BatchImportResponse {
+  // 状态码
+  int32 code = 1;
+  // 返回消息
+  string message = 2;
+  string success = 3;
+  string failed = 4;
+  // 结果完成度
+  string rate_of_progress = 5;
 }

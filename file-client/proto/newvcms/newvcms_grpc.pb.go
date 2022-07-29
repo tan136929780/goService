@@ -28,6 +28,7 @@ type InstanceServiceClient interface {
 	FindInstance(ctx context.Context, in *InstanceFindRequest, opts ...grpc.CallOption) (*InstanceFindResponse, error)
 	FindInstanceById(ctx context.Context, in *InstanceFindByIdRequest, opts ...grpc.CallOption) (*InstanceFindByIdResponse, error)
 	FindMetaDataByIdentifier(ctx context.Context, in *MetaDataFindRequest, opts ...grpc.CallOption) (*MetaDataFindResponse, error)
+	BatchImportInstanceStream(ctx context.Context, in *BatchImportRequest, opts ...grpc.CallOption) (InstanceService_BatchImportInstanceStreamClient, error)
 }
 
 type instanceServiceClient struct {
@@ -92,6 +93,38 @@ func (c *instanceServiceClient) FindMetaDataByIdentifier(ctx context.Context, in
 	return out, nil
 }
 
+func (c *instanceServiceClient) BatchImportInstanceStream(ctx context.Context, in *BatchImportRequest, opts ...grpc.CallOption) (InstanceService_BatchImportInstanceStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InstanceService_ServiceDesc.Streams[0], "/vnos.newvcms.InstanceService/BatchImportInstanceStream", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &instanceServiceBatchImportInstanceStreamClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type InstanceService_BatchImportInstanceStreamClient interface {
+	Recv() (*BatchImportResponse, error)
+	grpc.ClientStream
+}
+
+type instanceServiceBatchImportInstanceStreamClient struct {
+	grpc.ClientStream
+}
+
+func (x *instanceServiceBatchImportInstanceStreamClient) Recv() (*BatchImportResponse, error) {
+	m := new(BatchImportResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // InstanceServiceServer is the server API for InstanceService service.
 // All implementations must embed UnimplementedInstanceServiceServer
 // for forward compatibility
@@ -102,6 +135,7 @@ type InstanceServiceServer interface {
 	FindInstance(context.Context, *InstanceFindRequest) (*InstanceFindResponse, error)
 	FindInstanceById(context.Context, *InstanceFindByIdRequest) (*InstanceFindByIdResponse, error)
 	FindMetaDataByIdentifier(context.Context, *MetaDataFindRequest) (*MetaDataFindResponse, error)
+	BatchImportInstanceStream(*BatchImportRequest, InstanceService_BatchImportInstanceStreamServer) error
 	mustEmbedUnimplementedInstanceServiceServer()
 }
 
@@ -126,6 +160,9 @@ func (UnimplementedInstanceServiceServer) FindInstanceById(context.Context, *Ins
 }
 func (UnimplementedInstanceServiceServer) FindMetaDataByIdentifier(context.Context, *MetaDataFindRequest) (*MetaDataFindResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindMetaDataByIdentifier not implemented")
+}
+func (UnimplementedInstanceServiceServer) BatchImportInstanceStream(*BatchImportRequest, InstanceService_BatchImportInstanceStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method BatchImportInstanceStream not implemented")
 }
 func (UnimplementedInstanceServiceServer) mustEmbedUnimplementedInstanceServiceServer() {}
 
@@ -248,6 +285,27 @@ func _InstanceService_FindMetaDataByIdentifier_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InstanceService_BatchImportInstanceStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(BatchImportRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InstanceServiceServer).BatchImportInstanceStream(m, &instanceServiceBatchImportInstanceStreamServer{stream})
+}
+
+type InstanceService_BatchImportInstanceStreamServer interface {
+	Send(*BatchImportResponse) error
+	grpc.ServerStream
+}
+
+type instanceServiceBatchImportInstanceStreamServer struct {
+	grpc.ServerStream
+}
+
+func (x *instanceServiceBatchImportInstanceStreamServer) Send(m *BatchImportResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // InstanceService_ServiceDesc is the grpc.ServiceDesc for InstanceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -280,6 +338,12 @@ var InstanceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _InstanceService_FindMetaDataByIdentifier_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "BatchImportInstanceStream",
+			Handler:       _InstanceService_BatchImportInstanceStream_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "proto/newvcms.proto",
 }
