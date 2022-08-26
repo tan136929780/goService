@@ -222,7 +222,7 @@ func CreateFileMetaData(metaData *vfile.MetaData) (*newvcms.CreateResult, error)
 		Values: map[string]string{
 			"instance.identifier":   metaData.Uri,
 			"instance.isa":          string(isa),
-			"FileMetaData.fileName": metaData.FileName,
+			"FileMetaData.fileName": strings.TrimPrefix(metaData.FileName, "vfile://"),
 			"FileMetaData.uri":      metaData.Uri,
 			"FileMetaData.type":     metaData.Type,
 			"FileMetaData.hash":     metaData.Hash,

@@ -23,7 +23,8 @@ func (f VFile) Upload(uploadRequest *vfile.UploadRequest) (*vfile.UploadResponse
 			Uri:     "",
 		}, nil
 	}
-	fileName, err := fileUtil.FileWrite(uploadRequest.File.Content, uploadRequest.Metadata.Hash+uploadRequest.Metadata.Type)
+	fileType := uploadRequest.Metadata.FileName[strings.Index(uploadRequest.Metadata.FileName, ".")+1 : len(uploadRequest.Metadata.FileName)]
+	fileName, err := fileUtil.FileWrite(uploadRequest.File.Content, uploadRequest.Metadata.Hash+"."+fileType)
 	if err != nil {
 		logging.DownloadLogger.Error(fmt.Sprintf("Download: %s，uri: %s", err.Error(), uploadRequest.Metadata.Uri))
 		return &vfile.UploadResponse{
@@ -32,7 +33,7 @@ func (f VFile) Upload(uploadRequest *vfile.UploadRequest) (*vfile.UploadResponse
 			Uri:     "",
 		}, nil
 	}
-	uploadRequest.Metadata.Uri = uploadRequest.Metadata.Hash + uploadRequest.Metadata.Type
+	uploadRequest.Metadata.Uri = uploadRequest.Metadata.Hash + "." + fileType
 	_, err = fileUtil.CreateFileMetaData(uploadRequest.Metadata)
 	if err != nil {
 		logging.DownloadLogger.Error(fmt.Sprintf("Download: %s，uri: %s", "创建文件元信息失败删除文件", uploadRequest.Metadata.Uri))
@@ -51,12 +52,12 @@ func (f VFile) Upload(uploadRequest *vfile.UploadRequest) (*vfile.UploadResponse
 }
 
 func (f VFile) UploadStream(metaData *vfile.MetaData, file *vfile.File) error {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (f VFile) UploadWithOption(server vfile.FileService_UploadWithOptionServer) error {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
@@ -99,11 +100,11 @@ func (f VFile) Download(DownloadRequest *vfile.DownloadRequest) (*vfile.Download
 }
 
 func (f VFile) DownloadStream(request *vfile.DownloadRequest, server vfile.FileService_DownloadStreamServer) error {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
 
 func (f VFile) DownloadWithOption(request *vfile.DownloadRequest, server vfile.FileService_DownloadWithOptionServer) error {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
