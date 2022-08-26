@@ -70,113 +70,17 @@ import (
 	"goService/file-client/utils/grpcClient"
 )
 
-//export ServiceInfo
-func ServiceInfo(in C.struct_ServiceInfoRequest) C.struct_ServiceInfo {
-	host := C.GoString(in.hostInfo.host)
-	port := int(in.hostInfo.port)
-	conn := grpcClient.GetGrpcClient(host, port)
-	if conn == nil {
-		fmt.Println("client error")
-	}
-	defer conn.Close()
-	rsp, err := vfile.NewFileServiceClient(conn).ServiceInfo(context.TODO(), &vfile.ServiceInfoRequest{})
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	response := C.struct_ServiceInfo{}
-	response.version = C.int(rsp.Version)
-	response.os = C.CString(rsp.Os)
-	response.hostname = C.CString(rsp.Hostname)
-	response.acceptProtocol = C.CString(rsp.AcceptProtocol)
-	return response
-}
-
-//export Upload
-func Upload(in C.struct_UploadInfoRequest) C.struct_UploadResponse {
-	host := C.GoString(in.hostInfo.host)
-	port := int(in.hostInfo.port)
-	conn := grpcClient.GetGrpcClient(host, port)
-	if conn == nil {
-		panic("grpc client error")
-	}
-	defer conn.Close()
-	uploadRequest := &vfile.UploadRequest{
-		Metadata: &vfile.MetaData{
-			FileName: C.GoString(in.uploadRequest.metaData.fileName),
-			Uri:      C.GoString(in.uploadRequest.metaData.uri),
-			Type:     C.GoString(in.uploadRequest.metaData.fileType),
-			Hash:     C.GoString(in.uploadRequest.metaData.hash),
-			FileSize: int64(in.uploadRequest.metaData.fileSize),
-		},
-		//TODO
-		File: &vfile.File{Content: nil},
-	}
-	fmt.Printf("content: %#v\n", uploadRequest)
-	rsp, err := vfile.NewFileServiceClient(conn).Upload(context.TODO(), uploadRequest)
-	response := C.struct_UploadResponse{}
-	if err != nil {
-		response.code = C.long(rsp.Code)
-		response.message = C.CString(err.Error())
-		return response
-	}
-	response.code = C.long(rsp.Code)
-	response.message = C.CString(rsp.Message)
-	response.uri = C.CString(rsp.Uri)
-	return response
-}
-
-//export Download
-func Download(in C.struct_DownloadInfoRequest) C.struct_DownloadResponse {
-	host := C.GoString(in.hostInfo.host)
-	port := int(in.hostInfo.port)
-	conn := grpcClient.GetGrpcClient(host, port)
-	if conn == nil {
-		panic("grpc client error")
-	}
-	defer conn.Close()
-	downloadRequest := &vfile.DownloadRequest{
-		Uri: C.GoString(in.downloadRequest.uri),
-		Option: &vfile.DownloadOption{
-			SliceSize:  int64(in.downloadRequest.downloadOption.sliceSize),
-			Timeout:    int64(in.downloadRequest.downloadOption.timeout),
-			RangeStart: int64(in.downloadRequest.downloadOption.rangeStart),
-			RangeEnd:   int64(in.downloadRequest.downloadOption.rangeEnd),
-		},
-	}
-	rsp, err := vfile.NewFileServiceClient(conn).Download(context.TODO(), downloadRequest)
-	response := C.struct_DownloadResponse{}
-	if err != nil {
-		response.code = C.long(1)
-		response.message = C.CString(err.Error())
-		return response
-	}
-	response.code = C.long(rsp.Code)
-	response.message = C.CString(rsp.Message)
-	metaData := C.struct_MetaData{}
-	metaData.fileName = C.CString(rsp.Metadata.FileName)
-	metaData.uri = C.CString(rsp.Metadata.Uri)
-	metaData.fileType = C.CString(rsp.Metadata.Type)
-	metaData.hash = C.CString(rsp.Metadata.Hash)
-	metaData.fileSize = C.longlong(rsp.Metadata.FileSize)
-	response.metadata = &metaData
-	file := C.struct_File{}
-	file.content = C.CBytes(rsp.File.Content)
-	response.file = &file
-	return response
-}
-
 func main() {
-	//初始化配置文件
+	// 初始化配置文件
 	if err := config.Init(""); err != nil {
 		panic(err)
 	}
-
-	//upload()
+	// upload()
 	download()
-	//instanceCreate()
-	//deleteInstance()
-	//createFileMetaData()
-	//FindInstance()
+	// instanceCreate()
+	// deleteInstance()
+	// createFileMetaData()
+	// FindInstance()
 }
 
 func FindInstance() {
@@ -308,7 +212,7 @@ func instanceCreate() {
 }
 
 func deleteInstance() {
-	//uids := []string{"0x78c9", "0x78ce", "0x78cd", "0x78cc", "0x78cb", "0x78ca"}
+	// uids := []string{"0x78c9", "0x78ce", "0x78cd", "0x78cc", "0x78cb", "0x78ca"}
 	uid := "0x9cf4"
 	deleteInstanceList := make([]*newvcms.DeleteInfo, 0)
 	deleteInstanceList = append(deleteInstanceList, &newvcms.DeleteInfo{
@@ -336,7 +240,7 @@ func upload() {
 		fmt.Println("client error")
 	}
 	defer conn.Close()
-	fileName := "test.png"
+	fileName := "test.tag.png"
 	fileBytes, err := fileUtil.FileRead(fileName)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -367,7 +271,7 @@ func download() {
 	}
 	defer conn.Close()
 	downloadRequest := &vfile.DownloadRequest{
-		Uri:    "vfile://bf91a92aa29f34911540557b41ce79ac.png",
+		Uri:    "vfile://bf91a92aa29f34911540557b41ce79ac.tag.png",
 		Option: nil,
 	}
 	rsp, err := vfile.NewFileServiceClient(conn).Download(context.TODO(), downloadRequest)
@@ -379,4 +283,99 @@ func download() {
 		fmt.Println(err.Error())
 	}
 	fmt.Printf("Printf fileName Content: %#v\n", fileName)
+}
+
+//export ServiceInfo
+func ServiceInfo(in C.struct_ServiceInfoRequest) C.struct_ServiceInfo {
+	host := C.GoString(in.hostInfo.host)
+	port := int(in.hostInfo.port)
+	conn := grpcClient.GetGrpcClient(host, port)
+	if conn == nil {
+		fmt.Println("client error")
+	}
+	defer conn.Close()
+	rsp, err := vfile.NewFileServiceClient(conn).ServiceInfo(context.TODO(), &vfile.ServiceInfoRequest{})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	response := C.struct_ServiceInfo{}
+	response.version = C.int(rsp.Version)
+	response.os = C.CString(rsp.Os)
+	response.hostname = C.CString(rsp.Hostname)
+	response.acceptProtocol = C.CString(rsp.AcceptProtocol)
+	return response
+}
+
+//export Upload
+func Upload(in C.struct_UploadInfoRequest) C.struct_UploadResponse {
+	host := C.GoString(in.hostInfo.host)
+	port := int(in.hostInfo.port)
+	conn := grpcClient.GetGrpcClient(host, port)
+	if conn == nil {
+		panic("grpc client error")
+	}
+	defer conn.Close()
+	uploadRequest := &vfile.UploadRequest{
+		Metadata: &vfile.MetaData{
+			FileName: C.GoString(in.uploadRequest.metaData.fileName),
+			Uri:      C.GoString(in.uploadRequest.metaData.uri),
+			Type:     C.GoString(in.uploadRequest.metaData.fileType),
+			Hash:     C.GoString(in.uploadRequest.metaData.hash),
+			FileSize: int64(in.uploadRequest.metaData.fileSize),
+		},
+		// TODO
+		File: &vfile.File{Content: nil},
+	}
+	fmt.Printf("content: %#v\n", uploadRequest)
+	rsp, err := vfile.NewFileServiceClient(conn).Upload(context.TODO(), uploadRequest)
+	response := C.struct_UploadResponse{}
+	if err != nil {
+		response.code = C.long(rsp.Code)
+		response.message = C.CString(err.Error())
+		return response
+	}
+	response.code = C.long(rsp.Code)
+	response.message = C.CString(rsp.Message)
+	response.uri = C.CString(rsp.Uri)
+	return response
+}
+
+//export Download
+func Download(in C.struct_DownloadInfoRequest) C.struct_DownloadResponse {
+	host := C.GoString(in.hostInfo.host)
+	port := int(in.hostInfo.port)
+	conn := grpcClient.GetGrpcClient(host, port)
+	if conn == nil {
+		panic("grpc client error")
+	}
+	defer conn.Close()
+	downloadRequest := &vfile.DownloadRequest{
+		Uri: C.GoString(in.downloadRequest.uri),
+		Option: &vfile.DownloadOption{
+			SliceSize:  int64(in.downloadRequest.downloadOption.sliceSize),
+			Timeout:    int64(in.downloadRequest.downloadOption.timeout),
+			RangeStart: int64(in.downloadRequest.downloadOption.rangeStart),
+			RangeEnd:   int64(in.downloadRequest.downloadOption.rangeEnd),
+		},
+	}
+	rsp, err := vfile.NewFileServiceClient(conn).Download(context.TODO(), downloadRequest)
+	response := C.struct_DownloadResponse{}
+	if err != nil {
+		response.code = C.long(1)
+		response.message = C.CString(err.Error())
+		return response
+	}
+	response.code = C.long(rsp.Code)
+	response.message = C.CString(rsp.Message)
+	metaData := C.struct_MetaData{}
+	metaData.fileName = C.CString(rsp.Metadata.FileName)
+	metaData.uri = C.CString(rsp.Metadata.Uri)
+	metaData.fileType = C.CString(rsp.Metadata.Type)
+	metaData.hash = C.CString(rsp.Metadata.Hash)
+	metaData.fileSize = C.longlong(rsp.Metadata.FileSize)
+	response.metadata = &metaData
+	file := C.struct_File{}
+	file.content = C.CBytes(rsp.File.Content)
+	response.file = &file
+	return response
 }

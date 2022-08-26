@@ -47,20 +47,20 @@ func FileRead(fileName string) ([]byte, error) {
 	fileExist := CheckFileExist(fileName)
 	if !fileExist {
 		fmt.Println(fmt.Sprintf("FileRead: 下载文件不存在， uri: %s", fileName))
-		//logging.DownloadLogger.Info(fmt.Sprintf("FileRead: 下载文件不存在， uri: %s", fileName))
+		// logging.DownloadLogger.Info(fmt.Sprintf("FileRead: 下载文件不存在， uri: %s", fileName))
 		return nil, errorUtil.NewStringError("下载文件不存在")
 	}
 	fp, err := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND, 6)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("FileRead: %s， uri: %s", err.Error(), fileName))
-		//logging.DownloadLogger.Error(fmt.Sprintf("FileRead: %s， uri: %s", err.Error(), fileName))
+		// logging.DownloadLogger.Error(fmt.Sprintf("FileRead: %s， uri: %s", err.Error(), fileName))
 		return nil, err
 	}
 	defer fp.Close()
 	bytes, err := ioutil.ReadAll(fp)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("FileRead: %s， uri: %s", err.Error(), fileName))
-		//logging.DownloadLogger.Error(fmt.Sprintf("FileRead: %s， uri: %s", err.Error(), fileName))
+		// logging.DownloadLogger.Error(fmt.Sprintf("FileRead: %s， uri: %s", err.Error(), fileName))
 		return nil, err
 	}
 	return bytes, err
@@ -73,21 +73,21 @@ func FileWrite(fileBytes []byte, fileName string) (string, error) {
 		err := os.MkdirAll(pathName, 0755)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("FileWrite: %s， uri: %s", err.Error(), fileName))
-			//logging.UploadLogger.Error(fmt.Sprintf("FileWrite: %s， uri: %s", err.Error(), fileName))
+			// logging.UploadLogger.Error(fmt.Sprintf("FileWrite: %s， uri: %s", err.Error(), fileName))
 			return "", err
 		}
 	}
 	isExist := CheckFileExist(fileName)
 	if isExist {
 		fmt.Println(fmt.Sprintf("FileWrite：文件存在直接返回， uri: %s", fileName))
-		//logging.UploadLogger.Info(fmt.Sprintf("FileWrite: 文件存在直接返回， uri: %s", fileName))
+		// logging.UploadLogger.Info(fmt.Sprintf("FileWrite: 文件存在直接返回， uri: %s", fileName))
 		return fileName, nil
 	}
 	fileName = pathName + fileName
 	err = ioutil.WriteFile(fileName, fileBytes, 0755)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("FileWrite: %s， uri: %s", err.Error(), fileName))
-		//logging.UploadLogger.Info(fmt.Sprintf("FileWrite: %s， uri: %s", err.Error(), fileName))
+		// logging.UploadLogger.Info(fmt.Sprintf("FileWrite: %s， uri: %s", err.Error(), fileName))
 		return "", err
 	}
 	return fileName, nil
@@ -127,16 +127,14 @@ func GetBytesMd5(fileBytes []byte) string {
 func ParseFile(fileName, proto string) (vfile.MetaData, error) {
 	fileName = GetUploadPath() + fileName
 	fileNameWithSuffix := path.Base(fileName)
-	fileType := path.Ext(fileNameWithSuffix)
-	fileNameOnly := strings.TrimSuffix(fileNameWithSuffix, fileType)
 	md5Str, err := GetFileMd5(fileName)
 	if err != nil {
 		return vfile.MetaData{}, err
 	}
 	return vfile.MetaData{
-		FileName: proto + "://" + fileNameOnly,
+		FileName: proto + "://" + fileNameWithSuffix,
 		Uri:      "",
-		Type:     fileType,
+		Type:     "xlsx",
 		Hash:     md5Str,
 		FileSize: 0,
 	}, nil
@@ -192,7 +190,7 @@ func CreateFileInstance() (*newvcms.CreateResult, error) {
 		},
 	})
 	isa, _ := json.Marshal([]string{"type"})
-	createInstanceList := make([]*newvcms.InstanceInfo, 0)
+	createInstanceList := make([]*newvcms.InstanceInfo, 1)
 	createInstanceList = append(createInstanceList, &newvcms.InstanceInfo{
 		TypeIdentifier: "type",
 		Values: map[string]string{
@@ -229,7 +227,7 @@ func CreateFileMetaData(metaData *vfile.MetaData) (*newvcms.CreateResult, error)
 		return nil, err
 	}
 	isa, _ := json.Marshal([]string{"FileMetaData"})
-	createInstanceList := make([]*newvcms.InstanceInfo, 0)
+	createInstanceList := make([]*newvcms.InstanceInfo, 1)
 	createInstanceList = append(createInstanceList, &newvcms.InstanceInfo{
 		TypeIdentifier: "FileMetaData",
 		Values: map[string]string{
@@ -254,7 +252,7 @@ func CreateFileMetaData(metaData *vfile.MetaData) (*newvcms.CreateResult, error)
 }
 
 func FindFileMetaData(uri string) (*FileInstance, error) {
-	propertyExpressionList := make([]*newvcms.PropertyExpression, 0)
+	propertyExpressionList := make([]*newvcms.PropertyExpression, 2)
 	propertyExpressionList = append(propertyExpressionList, &newvcms.PropertyExpression{
 		Property: "instance.identifier",
 		Operator: "eq",
@@ -264,7 +262,7 @@ func FindFileMetaData(uri string) (*FileInstance, error) {
 		Operator: "eq",
 		Value:    "1",
 	})
-	conditionArray := make([]*newvcms.SearchCondition, 0)
+	conditionArray := make([]*newvcms.SearchCondition, 1)
 	conditionArray = append(conditionArray, &newvcms.SearchCondition{
 		TypeIdentifier:     "FileMetaData",
 		Properties:         nil,
@@ -286,16 +284,14 @@ func FindFileMetaData(uri string) (*FileInstance, error) {
 		return nil, err
 	}
 	data := &FileInstanceList{}
-	if len(response.Result) > 0 {
-		err = json.Unmarshal([]byte(response.Result[0].Data), data)
-		if err != nil {
-			logging.MetaDataLogger.Error(fmt.Sprintf("FindFileMetaData: %s， uri: %s", err.Error(), uri))
-			return nil, err
-		}
-		if len(data.Instances) > 0 {
-			logging.MetaDataLogger.Error(fmt.Sprintf("FindFileMetaData: 文件模型已存在，返回历史录入信息， uri: %s", uri))
-			return &data.Instances[0], nil
-		}
+	err = json.Unmarshal([]byte(response.Result[0].Data), data)
+	if err != nil {
+		logging.MetaDataLogger.Error(fmt.Sprintf("FindFileMetaData: %s， uri: %s", err.Error(), uri))
+		return nil, err
+	}
+	if len(data.Instances) > 0 {
+		logging.MetaDataLogger.Error(fmt.Sprintf("FindFileMetaData: 文件模型已存在，返回历史录入信息， uri: %s", uri))
+		return &data.Instances[0], nil
 	}
 	return nil, nil
 }
